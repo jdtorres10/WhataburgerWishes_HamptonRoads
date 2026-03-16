@@ -2,7 +2,7 @@
 
 > An independent geospatial research project identifying optimal Whataburger franchise locations in the Hampton Roads, Virginia MSA — the largest untapped Whataburger market on the East Coast.
 
-[![Live Map](https://img.shields.io/badge/Live%20Map-View%20Interactive-E2401C?style=for-the-badge)](https://jdtorres10.github.io/whataburger-hampton-roads)
+[![Live Map](https://img.shields.io/badge/Live%20Map-View%20Interactive-E2401C?style=for-the-badge)](https://jdtorres10.github.io/WhataburgerWishes_HamptonRoads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-F5F0E8?style=for-the-badge)](LICENSE)
 [![Data: Public](https://img.shields.io/badge/Data-100%25%20Public-97C459?style=for-the-badge)](#data-sources)
 
@@ -30,7 +30,7 @@ Texas contributes more enlisted personnel to the US military than any other stat
 
 ## The Interactive Map
 
-**[→ Open the live map](https://jdtorres10.github.io/whataburger-hampton-roads)**
+**[→ Open the live map](https://jdtorres10.github.io/WhataburgerWishes_HamptonRoads/)**
 
 The map includes:
 
