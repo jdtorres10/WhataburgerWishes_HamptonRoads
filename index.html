@@ -1,0 +1,433 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --wb-orange: #E2401C; --wb-orange-lt: #FF5A35; --wb-white: #F5F0E8;
+    --bg-deep: #0D0D0D; --bg-card: #141414; --bg-card2: #1A1A1A;
+    --border: rgba(245,240,232,0.08); --border-accent: rgba(226,64,28,0.4);
+    --text-primary: #F5F0E8; --text-muted: rgba(245,240,232,0.5); --text-dim: rgba(245,240,232,0.28);
+    --mil-fill: rgba(250,199,117,0.10); --mil-stroke: rgba(250,199,117,0.70);
+    --font-display: 'DM Serif Display',Georgia,serif; --font-body: 'DM Sans',sans-serif;
+  }
+  body { background: var(--bg-deep); color: var(--text-primary); font-family: var(--font-body); }
+  .header { background: var(--bg-card); border-bottom: 1px solid var(--border); padding: 18px 24px 14px; position: relative; overflow: hidden; }
+  .header::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background: linear-gradient(90deg,var(--wb-orange),var(--wb-orange-lt),transparent); }
+  .header-top { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; }
+  .brand-lockup { display:flex; align-items:center; gap:12px; }
+  .brand-icon { width:38px; height:38px; border-radius:8px; background:var(--wb-orange); display:flex; align-items:center; justify-content:center; font-family:var(--font-display); font-size:18px; color:white; flex-shrink:0; }
+  .brand-text .eyebrow { font-size:10px; font-weight:500; letter-spacing:0.12em; text-transform:uppercase; color:var(--wb-orange); margin-bottom:2px; }
+  .brand-text .title { font-family:var(--font-display); font-size:20px; color:var(--wb-white); line-height:1.1; }
+  .header-meta { text-align:right; }
+  .header-meta .region { font-size:11px; color:var(--text-muted); letter-spacing:0.06em; text-transform:uppercase; }
+  .header-meta .date { font-size:11px; color:var(--text-dim); margin-top:2px; }
+  .kpi-strip { display:grid; grid-template-columns:repeat(5,1fr); gap:1px; background:var(--border); border-top:1px solid var(--border); margin-top:14px; }
+  .kpi { background:var(--bg-card); padding:11px 14px; }
+  .kpi .k-label { font-size:10px; text-transform:uppercase; letter-spacing:0.1em; color:var(--text-dim); margin-bottom:3px; }
+  .kpi .k-val { font-family:var(--font-display); font-size:21px; color:var(--wb-white); line-height:1; }
+  .kpi .k-sub { font-size:10px; color:var(--text-muted); margin-top:2px; }
+  .kpi.accent .k-val { color:var(--wb-orange); }
+  .kpi.mil .k-val { color:#FAC775; }
+  .body-grid { display:grid; grid-template-columns:1fr 340px; min-height:560px; }
+  #map { width:100%; height:560px; }
+  .leaflet-container { background:#0a0a0a !important; }
+  .map-wrap { position:relative; }
+  .filter-float { position:absolute; top:12px; left:12px; z-index:800; display:flex; gap:6px; flex-wrap:wrap; }
+  .filt { background:rgba(13,13,13,0.88); backdrop-filter:blur(8px); border:1px solid var(--border); border-radius:4px; padding:5px 12px; font-size:11px; font-family:var(--font-body); font-weight:500; letter-spacing:0.04em; text-transform:uppercase; color:var(--text-muted); cursor:pointer; transition:all 0.15s; }
+  .filt:hover { border-color:var(--wb-orange); color:var(--wb-white); }
+  .filt.active { background:var(--wb-orange); border-color:var(--wb-orange); color:white; }
+  .filt.mil-toggle { border-color:rgba(250,199,117,0.4); color:#FAC775; }
+  .filt.mil-toggle.active { background:#FAC775; border-color:#FAC775; color:#0D0D0D; }
+  .right-panel { background:var(--bg-card); border-left:1px solid var(--border); display:flex; flex-direction:column; overflow:hidden; }
+  .panel-header { padding:14px 16px 10px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+  .panel-header .ph-title { font-size:10px; text-transform:uppercase; letter-spacing:0.1em; color:var(--text-dim); }
+  .tabs { display:flex; border-bottom:1px solid var(--border); }
+  .tab { flex:1; padding:9px 0; font-size:11px; text-align:center; text-transform:uppercase; letter-spacing:0.07em; color:var(--text-dim); cursor:pointer; border-bottom:2px solid transparent; transition:all 0.15s; }
+  .tab.active { color:var(--wb-orange); border-bottom-color:var(--wb-orange); }
+  .tab-content { display:none; flex:1; overflow-y:auto; }
+  .tab-content.active { display:block; }
+  .site-row { display:grid; grid-template-columns:26px 1fr 38px; align-items:center; gap:10px; padding:10px 16px; border-bottom:1px solid var(--border); cursor:pointer; transition:background 0.12s; }
+  .site-row:hover, .site-row.selected { background:rgba(226,64,28,0.07); }
+  .site-row.selected { border-left:2px solid var(--wb-orange); padding-left:14px; }
+  .rank-num { font-family:var(--font-display); font-size:16px; color:var(--text-dim); line-height:1; }
+  .site-row.selected .rank-num { color:var(--wb-orange); }
+  .row-name { font-size:12px; font-weight:500; color:var(--wb-white); line-height:1.3; }
+  .row-sub { font-size:10px; color:var(--text-muted); margin-top:2px; }
+  .score-pill { font-size:12px; font-weight:600; text-align:center; padding:3px 0; border-radius:4px; width:38px; }
+  .score-high { background:rgba(99,153,34,0.18); color:#97C459; }
+  .score-med  { background:rgba(186,117,23,0.18); color:#FAC775; }
+  .score-low  { background:rgba(216,90,48,0.18); color:#F09595; }
+  .score-user { background:rgba(226,64,28,0.18); color:var(--wb-orange-lt); }
+  .mil-row { display:flex; align-items:flex-start; gap:10px; padding:10px 16px; border-bottom:1px solid var(--border); cursor:pointer; transition:background 0.12s; }
+  .mil-row:hover { background:rgba(250,199,117,0.05); }
+  .mil-row.selected { background:rgba(250,199,117,0.08); border-left:2px solid #FAC775; padding-left:14px; }
+  .mil-branch-badge { font-size:9px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; padding:3px 7px; border-radius:3px; white-space:nowrap; flex-shrink:0; margin-top:2px; }
+  .b-navy   { background:rgba(56,111,214,0.2); color:#85B7EB; }
+  .b-af     { background:rgba(93,202,165,0.2); color:#5DCAA5; }
+  .b-army   { background:rgba(99,153,34,0.2);  color:#97C459; }
+  .b-uscg   { background:rgba(226,64,28,0.15); color:#FF5A35; }
+  .b-usmc   { background:rgba(186,117,23,0.2); color:#FAC775; }
+  .b-joint  { background:rgba(127,119,221,0.2);color:#AFA9EC; }
+  .mil-info .mil-name { font-size:12px; font-weight:500; color:var(--wb-white); line-height:1.3; }
+  .mil-info .mil-sub  { font-size:10px; color:var(--text-muted); margin-top:2px; }
+  .detail-panel { background:var(--bg-card2); border-top:1px solid var(--border); padding:14px 16px; max-height:260px; overflow-y:auto; display:none; }
+  .detail-panel.open { display:block; }
+  .dp-name { font-family:var(--font-display); font-size:15px; color:var(--wb-white); margin-bottom:3px; line-height:1.2; }
+  .dp-addr { font-size:10px; color:var(--text-dim); margin-bottom:10px; text-transform:uppercase; letter-spacing:0.05em; }
+  .dp-rationale { font-size:12px; color:var(--text-muted); line-height:1.65; margin-bottom:12px; }
+  .dp-metrics { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:12px; }
+  .dp-m { background:var(--bg-card); border:1px solid var(--border); border-radius:4px; padding:8px 10px; }
+  .dp-m .dm-val { font-family:var(--font-display); font-size:16px; color:var(--wb-white); }
+  .dp-m .dm-label { font-size:10px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.06em; margin-top:1px; }
+  .pc-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+  .pc-col { background:var(--bg-card); border-radius:4px; padding:8px 10px; }
+  .pc-col.pro { border-left:2px solid #639922; }
+  .pc-col.con { border-left:2px solid var(--wb-orange); }
+  .pc-head { font-size:10px; text-transform:uppercase; letter-spacing:0.08em; font-weight:600; margin-bottom:6px; }
+  .pc-col.pro .pc-head { color:#97C459; }
+  .pc-col.con .pc-head { color:var(--wb-orange); }
+  .pc-col li { font-size:11px; color:var(--text-muted); list-style:none; padding-left:10px; position:relative; margin-bottom:4px; line-height:1.4; }
+  .pc-col.pro li::before { content:'+'; position:absolute; left:0; color:#97C459; font-weight:600; }
+  .pc-col.con li::before { content:'−'; position:absolute; left:0; color:var(--wb-orange); }
+  .legend-bar { display:flex; gap:14px; flex-wrap:wrap; padding:10px 24px; background:var(--bg-card); border-top:1px solid var(--border); align-items:center; }
+  .leg { display:flex; align-items:center; gap:5px; font-size:10px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.07em; }
+  .leg-dot { width:8px; height:8px; border-radius:50%; }
+  .leg-line { width:18px; height:3px; border-radius:2px; }
+  .leg-poly { width:18px; height:12px; border-radius:2px; background:rgba(250,199,117,0.12); border:1px solid rgba(250,199,117,0.65); }
+  ::-webkit-scrollbar { width:4px; }
+  ::-webkit-scrollbar-track { background:transparent; }
+  ::-webkit-scrollbar-thumb { background:var(--border-accent); border-radius:2px; }
+  .mil-tooltip { background:#0D0D0D !important; border:1px solid rgba(250,199,117,0.5) !important; color:#FAC775 !important; font-family:'DM Sans',sans-serif !important; font-size:11px !important; font-weight:500 !important; padding:5px 10px !important; border-radius:4px !important; box-shadow:none !important; }
+  .mil-tooltip::before { display:none !important; }
+</style>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<div class="header">
+  <div class="header-top">
+    <div class="brand-lockup">
+      <div class="brand-icon">W</div>
+      <div class="brand-text">
+        <div class="eyebrow">Franchise Development Intelligence</div>
+        <div class="title">Hampton Roads Site Analysis</div>
+      </div>
+    </div>
+    <div class="header-meta">
+      <div class="region">Hampton Roads MSA · Virginia</div>
+      <div class="date">Research Date: March 2026</div>
+    </div>
+  </div>
+  <div class="kpi-strip">
+    <div class="kpi accent"><div class="k-label">Candidate Sites</div><div class="k-val">10</div><div class="k-sub">Scored &amp; ranked</div></div>
+    <div class="kpi"><div class="k-label">MSA Population</div><div class="k-val">1.79M</div><div class="k-sub">Census ACS 2024</div></div>
+    <div class="kpi mil"><div class="k-label">Military Installations</div><div class="k-val">9</div><div class="k-sub">All branches present</div></div>
+    <div class="kpi mil"><div class="k-label">Active Duty Personnel</div><div class="k-val">83K+</div><div class="k-sub">Incl. ~12K from Texas</div></div>
+    <div class="kpi"><div class="k-label">Nearest Whataburger</div><div class="k-val">~400 mi</div><div class="k-sub">Charlotte, NC</div></div>
+  </div>
+</div>
+
+<div class="body-grid">
+  <div class="map-wrap">
+    <div class="filter-float">
+      <button class="filt active" onclick="filterSites('all',this)">All Sites</button>
+      <button class="filt" onclick="filterSites('high',this)">High</button>
+      <button class="filt" onclick="filterSites('medium',this)">Medium</button>
+      <button class="filt" onclick="filterSites('low',this)">Lower</button>
+      <button class="filt" onclick="filterSites('user',this)">Your Site</button>
+      <button class="filt mil-toggle active" id="mil-btn" onclick="toggleMil(this)">Military</button>
+    </div>
+    <div id="map"></div>
+  </div>
+  <div class="right-panel">
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('sites',this)">Candidate Sites</div>
+      <div class="tab" onclick="switchTab('military',this)">Military</div>
+    </div>
+    <div class="tab-content active" id="tab-sites">
+      <div id="site-table"></div>
+    </div>
+    <div class="tab-content" id="tab-military">
+      <div id="mil-table"></div>
+    </div>
+    <div class="detail-panel" id="detail-panel"></div>
+  </div>
+</div>
+
+<div class="legend-bar">
+  <div class="leg"><div class="leg-dot" style="background:#97C459"></div>High priority</div>
+  <div class="leg"><div class="leg-dot" style="background:#FAC775"></div>Medium priority</div>
+  <div class="leg"><div class="leg-dot" style="background:#F09595"></div>Lower priority</div>
+  <div class="leg"><div class="leg-dot" style="background:var(--wb-orange)"></div>Your site</div>
+  <div class="leg"><div class="leg-poly"></div>Military installation</div>
+  <div class="leg"><div class="leg-line" style="background:#185FA5"></div>Interstate</div>
+  <div class="leg"><div class="leg-line" style="background:#1D9E75"></div>Commercial corridor</div>
+  <div style="margin-left:auto;font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.07em">Census ACS 2024 · VDOT · DoD · Hampton Roads Alliance</div>
+</div>
+
+<script>
+const SITES = [
+  {id:1,  lat:37.0360,  lng:-76.3956, priority:'high',  rank:1,  name:'Mercury Blvd / I-64',        sub:'Hampton · Exit 263',             totalScore:94, popDensity:'2,772/mi²', medianIncome:'$67,758', highwayScore:'9.8', corridorScore:'9.5', rationale:'Highest-traffic interchange on the Peninsula. Mercury Blvd is Hampton\'s primary commercial spine with ~140,000 vehicles/day on I-64. Dense retail, hotel, and Power Plant shopping ecosystem. Excellent access from JBLE Gate 2.', pros:['Peak Peninsula interstate volume','Dense existing QSR/retail ecosystem','Close to JBLE main gate traffic'], cons:['Highest real estate cost','Max existing QSR competition']},
+  {id:2,  lat:37.0730,  lng:-76.4730, priority:'high',  rank:2,  name:'Jefferson Ave / I-64',        sub:'Newport News · Exit 255',         totalScore:92, popDensity:'2,858/mi²', medianIncome:'$63,100', highwayScore:'9.4', corridorScore:'9.7', rationale:'Peninsula\'s densest fast-food corridor with 183K city population catchment. Primary commercial strip for Fort Eustis commuters and JBLE families. Coliseum Mall redevelopment adds long-term upside.', pros:['Proven QSR demand corridor','183K city catchment','Fort Eustis commuter traffic'], cons:['Heavy incumbent QSR competition','Mall area in transition']},
+  {id:3,  lat:36.8468,  lng:-76.2921, priority:'high',  rank:3,  name:'Military Hwy / I-64',         sub:'Norfolk · US-13 Beltway',         totalScore:91, popDensity:'4,301/mi²', medianIncome:'$52,000', highwayScore:'9.6', corridorScore:'9.2', rationale:'8-lane commercial arterial with highest throughput in South Hampton Roads. Naval Station Norfolk, NSA Hampton Roads, and NAVSHIPYD Norfolk all within 5 miles. Extremely high sailor and shipyard worker demand.', pros:['Densest population in region','3 major installations within 5 mi','8-lane arterial volume'], cons:['Lower median HHI','High lease costs near base']},
+  {id:4,  lat:36.7682,  lng:-76.1272, priority:'high',  rank:4,  name:'Virginia Beach Blvd / I-264', sub:'Virginia Beach · Independence',    totalScore:90, popDensity:'1,870/mi²', medianIncome:'$75,600', highwayScore:'8.9', corridorScore:'9.3', rationale:'Virginia Beach is the most populous city in Virginia (~460K). High median HHI. NAS Oceana and JEB Little Creek-Fort Story both in Virginia Beach — strong off-duty military demand plus seasonal tourist traffic.', pros:['Highest median HHI in tier','NAS Oceana & JEB Little Creek nearby','460K city catchment'], cons:['Seasonal traffic volatility','Moderate highway directness']},
+  {id:5,  lat:36.8330,  lng:-76.1260, priority:'medium',rank:5,  name:'Northampton Blvd / US-13',    sub:'Virginia Beach North',            totalScore:82, popDensity:'2,100/mi²', medianIncome:'$71,000', highwayScore:'8.7', corridorScore:'7.8', rationale:'8-lane arterial underserved relative to its traffic volume. Near Pembroke employment cluster. Corridor connecting NSA Hampton Roads to Virginia Beach residential areas used heavily by Navy families.', pros:['Navy family commuter corridor','Undersaturated premium burger market'], cons:['Not at major interchange','Moderate residential density']},
+  {id:6,  lat:36.7312,  lng:-76.5868, priority:'medium',rank:6,  name:'Portsmouth Blvd / I-664',     sub:'Chesapeake · Greenbrier',         totalScore:79, popDensity:'560/mi²',   medianIncome:'$82,400', highwayScore:'8.2', corridorScore:'7.4', rationale:'Fastest-growing city in Hampton Roads with highest median income in the analysis ($82,400). Low QSR saturation in premium segment. Serves Navy and USCG families who prefer quieter suburban Chesapeake.', pros:['Highest median income ($82,400)','Fastest-growing city in HR','Low premium QSR saturation'], cons:['Lower density (suburban)','I-664 lower volume than I-64']},
+  {id:7,  lat:36.8395,  lng:-76.3008, priority:'medium',rank:7,  name:'Tidewater Dr / I-264',        sub:'Portsmouth · Norfolk border',     totalScore:77, popDensity:'3,314/mi²', medianIncome:'$48,500', highwayScore:'7.9', corridorScore:'8.1', rationale:'Major commuter arterial. Affordable real estate. BAE Systems and Norfolk Naval Shipyard are the primary employers — heavy blue-collar lunch demand from shipyard workers, many of whom are veterans or active duty.', pros:['Affordable real estate','Shipyard/NAVSHIPYD lunch demand','Dense residential'], cons:['Lowest median HHI in analysis','Higher vacancy risk']},
+  {id:8,  lat:37.115839,lng:-76.465151,priority:'user', rank:8,  name:'Victory Blvd (Your Site)',    sub:'Hampton · Ex-Pizza Hut building', totalScore:74, popDensity:'2,200/mi²', medianIncome:'$69,500', highwayScore:'6.8', corridorScore:'7.6', rationale:'Existing drive-through building cuts buildout cost vs greenfield. VDOT widening Victory Blvd. Located 2.5 miles from JBLE Langley AFB Gate 20 on Armistead Ave — strong Air Force family and civilian workforce corridor. Peninsula Town Center nearby.', pros:['Existing drive-through = low buildout','2.5 mi from Langley AFB Gate','VDOT widening = rising corridor value','Family/rec traffic generators'], cons:['Not at interstate interchange','Lower current ADT vs. top sites']},
+  {id:9,  lat:37.1513,  lng:-76.5195, priority:'low',   rank:9,  name:'Magruder Blvd / US-60',      sub:'Hampton Northwest · Airport',     totalScore:68, popDensity:'1,200/mi²', medianIncome:'$69,000', highwayScore:'7.2', corridorScore:'6.5', rationale:'Growing suburban corridor near Newport News/Williamsburg Airport. Lower density today but positioned for future growth. Serves overflow residential growth near Fort Eustis northern boundary.', pros:['Airport/tourist corridor potential','Growing industrial zone'], cons:['Low current residential density','Far from major interstate ramps']},
+  {id:10, lat:36.9274,  lng:-76.0141, priority:'low',   rank:10, name:'Oceana Blvd / US-58',         sub:'Virginia Beach East',             totalScore:65, popDensity:'1,650/mi²', medianIncome:'$74,000', highwayScore:'6.8', corridorScore:'6.9', rationale:'Strong demographics but existing QSR saturation. NAS Oceana is adjacent — potential demand from aviation squadrons but limited off-base commercial access from main gate.', pros:['Strong demographics','NAS Oceana military catchment'], cons:['High existing QSR saturation','Limited off-base commercial access']},
+];
+
+// Military installations with hand-traced boundary polygons
+const INSTALLATIONS = [
+  {
+    id:'nsn', name:'Naval Station Norfolk', branch:'Navy', branchClass:'b-navy',
+    personnel:'46,000 active + 21,000 civ', acreage:'4,630 acres',
+    note:'World\'s largest naval station. Homeport for aircraft carriers, destroyers, submarines. Highest concentration of Texan Navy personnel in the Atlantic Fleet.',
+    center:[36.943,-76.313],
+    polygon:[[36.975,-76.335],[36.975,-76.310],[36.965,-76.295],[36.955,-76.290],[36.945,-76.288],[36.932,-76.292],[36.925,-76.298],[36.922,-76.310],[36.925,-76.325],[36.935,-76.338],[36.950,-76.342],[36.965,-76.340],[36.975,-76.335]]
+  },
+  {
+    id:'jble-langley', name:'JBLE — Langley AFB', branch:'Air Force', branchClass:'b-af',
+    personnel:'~11,000 active duty', acreage:'2,907 acres',
+    note:'Home of Air Combat Command and 1st Fighter Wing (F-22 Raptors). On the southeastern tip of the Peninsula in Hampton. Victory Blvd site is 2.5 mi from Gate 20.',
+    center:[37.083,-76.361],
+    polygon:[[37.100,-76.375],[37.100,-76.350],[37.092,-76.340],[37.082,-76.338],[37.070,-76.342],[37.065,-76.355],[37.068,-76.370],[37.078,-76.380],[37.092,-76.382],[37.100,-76.375]]
+  },
+  {
+    id:'jble-eustis', name:'JBLE — Fort Eustis', branch:'Army', branchClass:'b-army',
+    personnel:'~8,500 active duty', acreage:'8,243 acres',
+    note:'HQ of TRADOC and 7th Transportation Brigade. Army\'s primary East Coast watercraft/logistics hub. Majority of the old Mulberry Island peninsula in Newport News.',
+    center:[37.152,-76.560],
+    polygon:[[37.175,-76.590],[37.175,-76.545],[37.165,-76.530],[37.150,-76.525],[37.135,-76.530],[37.128,-76.545],[37.130,-76.565],[37.140,-76.582],[37.158,-76.592],[37.175,-76.590]]
+  },
+  {
+    id:'nas-oceana', name:'NAS Oceana', branch:'Navy', branchClass:'b-navy',
+    personnel:'~10,000 active duty', acreage:'3,748 acres',
+    note:'Primary East Coast Master Jet Base. Home to multiple carrier strike group aviation squadrons (F/A-18 Super Hornets). Large Texas Navy aviation community.',
+    center:[36.820,-76.033],
+    polygon:[[36.845,-76.055],[36.845,-76.015],[36.832,-76.005],[36.818,-76.005],[36.805,-76.012],[36.800,-76.028],[36.802,-76.048],[36.815,-76.060],[36.832,-76.062],[36.845,-76.055]]
+  },
+  {
+    id:'jeb-lc', name:'JEB Little Creek–Fort Story', branch:'Navy', branchClass:'b-joint',
+    personnel:'~17,000 active duty', acreage:'5,700 acres',
+    note:'Primary East Coast amphibious base. Home of Naval Special Warfare and SEAL Teams 2, 4, 10. Fort Story portion on Cape Henry at the Chesapeake Bay entrance.',
+    center:[36.918,-76.057],
+    polygon:[[36.938,-76.075],[36.938,-76.042],[36.928,-76.032],[36.915,-76.030],[36.902,-76.038],[36.898,-76.055],[36.902,-76.072],[36.915,-76.080],[36.930,-76.080],[36.938,-76.075]]
+  },
+  {
+    id:'navshipyd', name:'Norfolk Naval Shipyard', branch:'Navy', branchClass:'b-navy',
+    personnel:'~4,000 mil + 9,000 civ', acreage:'800 acres',
+    note:'Oldest and largest industrial Navy facility in the US. Specializes in nuclear carrier overhaul. Located in Portsmouth along the Southern Branch of the Elizabeth River.',
+    center:[36.822,-76.298],
+    polygon:[[36.832,-76.308],[36.832,-76.290],[36.825,-76.283],[36.816,-76.285],[36.812,-76.295],[36.815,-76.308],[36.824,-76.313],[36.832,-76.308]]
+  },
+  {
+    id:'nsa-hr', name:'NSA Hampton Roads', branch:'Navy', branchClass:'b-navy',
+    personnel:'~5,000 military & civ', acreage:'~350 acres',
+    note:'HQ of Marine Forces Command (MARFORCOM) and NATO\'s Allied Command Transformation — the only NATO command on US soil. Located in the Little Creek/Wards Corner area of Norfolk.',
+    center:[36.910,-76.150],
+    polygon:[[36.922,-76.162],[36.922,-76.140],[36.914,-76.133],[36.904,-76.135],[36.899,-76.145],[36.902,-76.158],[36.912,-76.165],[36.922,-76.162]]
+  },
+  {
+    id:'nws-yorktown', name:'Naval Weapons Station Yorktown', branch:'Navy', branchClass:'b-navy',
+    personnel:'~1,500 military & civ', acreage:'9,714 acres',
+    note:'Stores, maintains, and loads ordnance for the US Atlantic Fleet. Manages the Cheatham Annex. Located north on the York River — large forested buffer zone.',
+    center:[37.245,-76.615],
+    polygon:[[37.285,-76.640],[37.285,-76.590],[37.265,-76.575],[37.245,-76.575],[37.225,-76.585],[37.215,-76.605],[37.220,-76.635],[37.240,-76.650],[37.265,-76.652],[37.285,-76.640]]
+  },
+  {
+    id:'uscg-sector', name:'USCG Sector Hampton Roads', branch:'USCG', branchClass:'b-uscg',
+    personnel:'~500 active duty', acreage:'~40 acres',
+    note:'Primary Coast Guard maritime law enforcement, search and rescue, and port security command for the Chesapeake Bay and Hampton Roads waterways. Located in Portsmouth near the Shipyard.',
+    center:[36.838,-76.305],
+    polygon:[[36.843,-76.312],[36.843,-76.300],[36.837,-76.295],[36.832,-76.298],[36.832,-76.308],[36.837,-76.315],[36.843,-76.312]]
+  },
+];
+
+const CORRIDORS = [
+  {type:'interstate', coords:[[37.08,-76.55],[37.07,-76.49],[37.04,-76.44],[37.00,-76.37],[36.96,-76.28],[36.88,-76.28],[36.85,-76.29]]},
+  {type:'interstate', coords:[[36.85,-76.29],[36.84,-76.30],[36.84,-76.28],[36.78,-76.20],[36.77,-76.18]]},
+  {type:'interstate', coords:[[36.84,-76.30],[36.83,-76.41],[36.80,-76.47],[36.77,-76.50],[36.75,-76.55],[36.74,-76.57]]},
+  {type:'commercial', coords:[[37.07,-76.40],[37.04,-76.38],[37.01,-76.35]]},
+  {type:'commercial', coords:[[37.07,-76.47],[37.08,-76.46],[37.09,-76.45],[37.10,-76.44],[37.13,-76.52]]},
+  {type:'commercial', coords:[[36.86,-76.23],[36.84,-76.27],[36.83,-76.31]]},
+  {type:'commercial', coords:[[36.77,-76.16],[36.77,-76.13],[36.77,-76.10],[36.77,-76.05]]},
+  {type:'commercial', coords:[[37.10,-76.48],[37.11,-76.47],[37.115,-76.465],[37.12,-76.46],[37.13,-76.45]]},
+];
+
+const priorityColor = {high:'#97C459',medium:'#FAC775',low:'#F09595',user:'#E2401C'};
+const scoreClass    = {high:'score-high',medium:'score-med',low:'score-low',user:'score-user'};
+
+let map, siteMarkers=[], milLayers=[], milVisible=true, selectedSiteId=null, selectedMilId=null;
+
+function buildSiteTable() {
+  document.getElementById('site-table').innerHTML = SITES.map(s=>`
+    <div class="site-row" id="row-${s.id}" onclick="selectSite(${s.id})">
+      <div class="rank-num">${s.rank}</div>
+      <div><div class="row-name">${s.name}</div><div class="row-sub">${s.sub}</div></div>
+      <div class="score-pill ${scoreClass[s.priority]}">${s.totalScore}</div>
+    </div>`).join('');
+}
+
+function buildMilTable() {
+  document.getElementById('mil-table').innerHTML = INSTALLATIONS.map(m=>`
+    <div class="mil-row" id="milrow-${m.id}" onclick="selectMil('${m.id}')">
+      <span class="mil-branch-badge ${m.branchClass}">${m.branch}</span>
+      <div class="mil-info">
+        <div class="mil-name">${m.name}</div>
+        <div class="mil-sub">${m.personnel}</div>
+      </div>
+    </div>`).join('');
+}
+
+function switchTab(tab, el) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('tab-'+tab).classList.add('active');
+  document.getElementById('detail-panel').classList.remove('open');
+}
+
+function selectSite(id) {
+  selectedSiteId = id;
+  document.querySelectorAll('.site-row').forEach(r=>r.classList.remove('selected'));
+  const row = document.getElementById('row-'+id);
+  if(row){ row.classList.add('selected'); row.scrollIntoView({block:'nearest',behavior:'smooth'}); }
+  const s = SITES.find(x=>x.id===id);
+  const dp = document.getElementById('detail-panel');
+  dp.innerHTML = `
+    <div class="dp-name">${s.name}</div>
+    <div class="dp-addr">${s.sub}</div>
+    <div class="dp-rationale">${s.rationale}</div>
+    <div class="dp-metrics">
+      <div class="dp-m"><div class="dm-val">${s.totalScore}</div><div class="dm-label">Composite Score</div></div>
+      <div class="dp-m"><div class="dm-val">${s.popDensity}</div><div class="dm-label">Pop. Density</div></div>
+      <div class="dp-m"><div class="dm-val">${s.medianIncome}</div><div class="dm-label">Median HHI</div></div>
+      <div class="dp-m"><div class="dm-val">${s.highwayScore}/10</div><div class="dm-label">Highway Access</div></div>
+    </div>
+    <div class="pc-grid">
+      <div class="pc-col pro"><div class="pc-head">Strengths</div><ul>${s.pros.map(p=>`<li>${p}</li>`).join('')}</ul></div>
+      <div class="pc-col con"><div class="pc-head">Considerations</div><ul>${s.cons.map(c=>`<li>${c}</li>`).join('')}</ul></div>
+    </div>`;
+  dp.classList.add('open');
+  map.setView([s.lat,s.lng],13,{animate:true});
+}
+
+function selectMil(id) {
+  selectedMilId = id;
+  document.querySelectorAll('.mil-row').forEach(r=>r.classList.remove('selected'));
+  const row = document.getElementById('milrow-'+id);
+  if(row){ row.classList.add('selected'); row.scrollIntoView({block:'nearest',behavior:'smooth'}); }
+  const m = INSTALLATIONS.find(x=>x.id===id);
+  const dp = document.getElementById('detail-panel');
+  dp.innerHTML = `
+    <div class="dp-name">${m.name}</div>
+    <div class="dp-addr"><span class="mil-branch-badge ${m.branchClass}" style="margin-right:6px">${m.branch}</span>${m.acreage}</div>
+    <div class="dp-rationale" style="margin-top:8px">${m.note}</div>
+    <div class="dp-metrics">
+      <div class="dp-m"><div class="dm-val">${m.personnel.split(' ')[0]}</div><div class="dm-label">Personnel</div></div>
+      <div class="dp-m"><div class="dm-val">${m.acreage.split(' ')[0]}</div><div class="dm-label">Acreage</div></div>
+    </div>`;
+  dp.classList.add('open');
+  map.setView(m.center,13,{animate:true});
+
+  // Highlight selected installation polygon
+  milLayers.forEach(({layer,inst})=>{
+    if(layer.setStyle){
+      if(inst.id===id){
+        layer.setStyle({fillColor:'#FAC775',fillOpacity:0.22,color:'#FAC775',weight:2,opacity:1});
+        layer.bringToFront();
+      } else {
+        layer.setStyle({fillColor:'#FAC775',fillOpacity:0.10,color:'#FAC775',weight:1.5,opacity:0.70});
+      }
+    }
+  });
+}
+
+function filterSites(level, btn) {
+  document.querySelectorAll('.filt:not(.mil-toggle)').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  siteMarkers.forEach(({marker,site})=>{
+    if(level==='all'||site.priority===level) marker.addTo(map);
+    else marker.remove();
+  });
+  document.getElementById('detail-panel').classList.remove('open');
+}
+
+function toggleMil(btn) {
+  milVisible = !milVisible;
+  btn.classList.toggle('active', milVisible);
+  milLayers.forEach(({layer})=>{
+    if(milVisible) layer.addTo(map);
+    else layer.remove();
+  });
+}
+
+document.addEventListener('DOMContentLoaded', ()=>{
+  buildSiteTable();
+  buildMilTable();
+
+  map = L.map('map',{center:[36.95,-76.25],zoom:10,zoomControl:false});
+  L.control.zoom({position:'bottomright'}).addTo(map);
+
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{
+    attribution:'© OpenStreetMap © CARTO', maxZoom:19
+  }).addTo(map);
+
+  // Military installation polygons
+  INSTALLATIONS.forEach(inst=>{
+    const poly = L.polygon(inst.polygon,{
+      fillColor:'#FAC775', fillOpacity:0.10,
+      color:'#FAC775', weight:1.5, opacity:0.70,
+      dashArray:'5 4'
+    }).addTo(map);
+
+    poly.bindTooltip(inst.name,{
+      className:'mil-tooltip', permanent:false, sticky:true, direction:'top'
+    });
+
+    poly.on('click',()=>{
+      // Switch to military tab and select
+      document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+      document.querySelectorAll('.tab')[1].classList.add('active');
+      document.getElementById('tab-military').classList.add('active');
+      selectMil(inst.id);
+    });
+
+    milLayers.push({layer:poly, inst});
+  });
+
+  // Corridors
+  CORRIDORS.forEach(c=>{
+    const style = c.type==='interstate'
+      ? {color:'#185FA5',weight:3,opacity:0.7}
+      : {color:'#1D9E75',weight:2,opacity:0.6,dashArray:'7 5'};
+    L.polyline(c.coords,style).addTo(map);
+  });
+
+  // Site markers
+  SITES.forEach(s=>{
+    const isUser = s.priority==='user';
+    const color = priorityColor[s.priority];
+    const icon = L.divIcon({
+      html:`<div style="width:${isUser?32:26}px;height:${isUser?32:26}px;border-radius:50%;background:${isUser?'#0D0D0D':color+'22'};border:2px solid ${color};display:flex;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif;font-size:${isUser?9:10}px;font-weight:600;color:${color};cursor:pointer;box-shadow:0 0 12px ${color}55;">${isUser?'YOU':s.totalScore}</div>`,
+      className:'', iconSize:[isUser?32:26,isUser?32:26], iconAnchor:[isUser?16:13,isUser?16:13]
+    });
+    const m = L.marker([s.lat,s.lng],{icon}).addTo(map);
+    m.on('click',()=>{
+      // Switch to sites tab
+      document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+      document.querySelectorAll('.tab')[0].classList.add('active');
+      document.getElementById('tab-sites').classList.add('active');
+      selectSite(s.id);
+    });
+    siteMarkers.push({marker:m,site:s});
+  });
+
+  selectSite(1);
+});
+</script>
