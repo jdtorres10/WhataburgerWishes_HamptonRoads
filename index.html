@@ -1,226 +1,266 @@
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Whataburger Wishes — Hampton Roads Site Analysis</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap');
-  *{box-sizing:border-box;margin:0;padding:0;}
-  :root{
-    --wb-orange:#FF7710;
-    --wb-orange-dk:#D95F00;
-    --wb-orange-lt:#FF9A45;
-    --wb-orange-pale:#FFF0E6;
-    --wb-orange-dim:rgba(255,119,16,0.12);
-    --wb-white:#FFFFFF;
-    --bg:#FFFFFF;
-    --bg-card:#FFFAF6;
-    --bg-card2:#FFF4EC;
-    --border:rgba(255,119,16,0.15);
-    --border-md:rgba(255,119,16,0.30);
-    --border-strong:rgba(255,119,16,0.55);
-    --text-primary:#1A0A00;
-    --text-muted:#6B3D1A;
-    --text-dim:#B07040;
-    --green:#3A8A00;
-    --green-bg:#F0FAE6;
-    --green-bd:#B8E090;
-    --amber:#B86000;
-    --amber-bg:#FFF8EC;
-    --amber-bd:#FFCC80;
-    --red:#C03000;
-    --red-bg:#FFF2EE;
-    --red-bd:#FFBBA0;
-    --blue:#1A5FA0;
-    --blue-bg:#EEF5FF;
-    --blue-bd:#90BBEE;
-    --mil-fill:rgba(255,119,16,0.08);
-    --mil-stroke:rgba(255,119,16,0.60);
-    --font-display:'DM Serif Display',Georgia,serif;
-    --font-body:'DM Sans',sans-serif;
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --wb-orange: #FF7710;
+    --wb-orange-dk: #D95F00;
+    --wb-orange-lt: #FF9A45;
+    --wb-orange-pale: #FFF0E6;
+    --wb-white: #FFFFFF;
+    --bg: #FFFFFF;
+    --bg-card: #FFFAF6;
+    --bg-card2: #FFF4EC;
+    --border: rgba(255,119,16,0.15);
+    --border-md: rgba(255,119,16,0.30);
+    --border-strong: rgba(255,119,16,0.55);
+    --text-primary: #1A0A00;
+    --text-muted: #6B3D1A;
+    --text-dim: #B07040;
+    --green: #3A8A00;
+    --green-bg: #F0FAE6;
+    --green-bd: #B8E090;
+    --amber: #B86000;
+    --amber-bg: #FFF8EC;
+    --amber-bd: #FFCC80;
+    --red: #C03000;
+    --red-bg: #FFF2EE;
+    --red-bd: #FFBBA0;
+    --blue: #1A5FA0;
+    --blue-bg: #EEF5FF;
+    --blue-bd: #90BBEE;
+    --font-display: 'DM Serif Display', Georgia, serif;
+    --font-body: 'DM Sans', sans-serif;
   }
-  body{background:var(--bg);color:var(--text-primary);font-family:var(--font-body);}
+  html, body { height: 100%; background: var(--bg); color: var(--text-primary); font-family: var(--font-body); font-size: 14px; line-height: 1.5; }
+  .app { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
 
   /* Header */
-  .header{background:var(--wb-orange);padding:16px 24px 0;position:relative;overflow:hidden;}
-  .header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:var(--wb-orange-dk);}
-  .header-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:12px;}
-  .brand-lockup{display:flex;align-items:center;gap:12px;}
-  .brand-icon{width:40px;height:40px;border-radius:9px;background:white;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:20px;color:var(--wb-orange);flex-shrink:0;font-weight:400;}
-  .brand-text .eyebrow{font-size:10px;font-weight:600;letter-spacing:0.13em;text-transform:uppercase;color:rgba(255,255,255,0.75);margin-bottom:2px;}
-  .brand-text .title{font-family:var(--font-display);font-size:20px;color:white;line-height:1.1;}
-  .header-meta{text-align:right;}
-  .header-meta .region{font-size:11px;color:rgba(255,255,255,0.80);letter-spacing:0.07em;text-transform:uppercase;}
-  .header-meta .date{font-size:11px;color:rgba(255,255,255,0.60);margin-top:2px;}
+  .header { background: var(--wb-orange); padding: 16px 24px 0; position: relative; flex-shrink: 0; }
+  .header::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: var(--wb-orange-dk); }
+  .header-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 12px; }
+  .brand-lockup { display: flex; align-items: center; gap: 12px; }
+  .brand-icon { width: 40px; height: 40px; border-radius: 9px; background: white; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 20px; color: var(--wb-orange); flex-shrink: 0; }
+  .brand-text .eyebrow { font-size: 10px; font-weight: 600; letter-spacing: 0.13em; text-transform: uppercase; color: rgba(255,255,255,0.75); margin-bottom: 2px; }
+  .brand-text .title { font-family: var(--font-display); font-size: 20px; color: white; line-height: 1.1; }
+  .header-meta { text-align: right; padding-top: 2px; }
+  .header-meta .region { font-size: 11px; color: rgba(255,255,255,0.80); letter-spacing: 0.07em; text-transform: uppercase; }
+  .header-meta .date { font-size: 11px; color: rgba(255,255,255,0.60); margin-top: 2px; }
 
   /* KPI strip */
-  .kpi-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--wb-orange-dk);border-top:1px solid var(--wb-orange-dk);}
-  .kpi{background:var(--wb-orange);padding:11px 14px;}
-  .kpi .k-label{font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.65);margin-bottom:3px;}
-  .kpi .k-val{font-family:var(--font-display);font-size:21px;color:white;line-height:1;}
-  .kpi .k-sub{font-size:10px;color:rgba(255,255,255,0.60);margin-top:2px;}
-  .kpi.accent .k-val{color:white;}
-  .kpi.mil .k-val{color:#FFE0B8;}
+  .kpi-strip { display: grid; grid-template-columns: repeat(5,1fr); gap: 1px; background: var(--wb-orange-dk); border-top: 1px solid var(--wb-orange-dk); }
+  .kpi { background: var(--wb-orange); padding: 11px 14px; }
+  .kpi .k-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.65); margin-bottom: 3px; }
+  .kpi .k-val { font-family: var(--font-display); font-size: 21px; color: white; line-height: 1; }
+  .kpi .k-sub { font-size: 10px; color: rgba(255,255,255,0.60); margin-top: 2px; }
+  .kpi.mil .k-val { color: #FFE0B8; }
 
   /* Body */
-  .body-grid{display:grid;grid-template-columns:1fr 340px;min-height:560px;}
-  #map{width:100%;height:560px;}
-  .leaflet-container{background:#f5ede6 !important;}
+  .body { display: flex; flex: 1; overflow: hidden; }
+  .map-wrap { flex: 1; position: relative; }
+  #map { width: 100%; height: 100%; }
+  .leaflet-container { background: #f5ede6 !important; }
 
-  /* Filter float */
-  .map-wrap{position:relative;}
-  .filter-float{position:absolute;top:12px;left:12px;z-index:800;display:flex;gap:6px;flex-wrap:wrap;}
-  .filt{background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);border:1px solid var(--border-md);border-radius:4px;padding:5px 13px;font-size:11px;font-family:var(--font-body);font-weight:500;letter-spacing:0.05em;text-transform:uppercase;color:var(--text-muted);cursor:pointer;transition:all 0.15s;}
-  .filt:hover{border-color:var(--wb-orange);color:var(--wb-orange);}
-  .filt.active{background:var(--wb-orange);border-color:var(--wb-orange);color:white;}
-  .filt.mil-toggle{border-color:var(--border-strong);color:var(--wb-orange);}
-  .filt.mil-toggle.active{background:var(--wb-orange-pale);border-color:var(--wb-orange);color:var(--wb-orange-dk);}
+  /* Filters */
+  .filter-float { position: absolute; top: 12px; left: 12px; z-index: 800; display: flex; gap: 6px; flex-wrap: wrap; }
+  .filt { background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); border: 1px solid var(--border-md); border-radius: 4px; padding: 5px 13px; font-size: 11px; font-family: var(--font-body); font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-muted); cursor: pointer; transition: all 0.15s; }
+  .filt:hover { border-color: var(--wb-orange); color: var(--wb-orange); }
+  .filt.active { background: var(--wb-orange); border-color: var(--wb-orange); color: white; }
+  .filt.mil-toggle { border-color: var(--border-strong); color: var(--wb-orange); }
+  .filt.mil-toggle.active { background: var(--wb-orange-pale); border-color: var(--wb-orange); color: var(--wb-orange-dk); }
 
   /* Right panel */
-  .right-panel{background:var(--bg-card);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
-  .tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;}
-  .tab{flex:1;padding:10px 0;font-size:11px;text-align:center;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-dim);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.15s;background:none;border-top:none;border-left:none;border-right:none;font-family:var(--font-body);font-weight:500;}
-  .tab.active{color:var(--wb-orange);border-bottom-color:var(--wb-orange);}
-  .tab-content{display:none;flex:1;overflow-y:auto;}
-  .tab-content.active{display:block;}
+  .right-panel { width: 340px; flex-shrink: 0; background: var(--bg-card); border-left: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
+  .tabs { display: flex; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+  .tab { flex: 1; padding: 10px 0; font-size: 11px; text-align: center; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-dim); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s; background: none; border-top: none; border-left: none; border-right: none; font-family: var(--font-body); font-weight: 500; }
+  .tab.active { color: var(--wb-orange); border-bottom-color: var(--wb-orange); }
+  .tab-content { display: none; flex: 1; overflow-y: auto; }
+  .tab-content.active { display: block; }
 
   /* Site rows */
-  .site-row{display:grid;grid-template-columns:26px 1fr 38px;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.12s;border-left:2px solid transparent;}
-  .site-row:hover{background:var(--wb-orange-pale);}
-  .site-row.selected{background:var(--wb-orange-pale);border-left-color:var(--wb-orange);padding-left:14px;}
-  .rank-num{font-family:var(--font-display);font-size:16px;color:var(--text-dim);line-height:1;}
-  .site-row.selected .rank-num{color:var(--wb-orange);}
-  .row-name{font-size:12px;font-weight:500;color:var(--text-primary);line-height:1.3;}
-  .row-sub{font-size:10px;color:var(--text-dim);margin-top:2px;}
-  .score-pill{font-size:12px;font-weight:600;text-align:center;padding:3px 0;border-radius:4px;width:38px;}
-  .score-high{background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd);}
-  .score-med {background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-bd);}
-  .score-low {background:var(--red-bg);color:var(--red);border:1px solid var(--red-bd);}
-  .score-user{background:var(--wb-orange-pale);color:var(--wb-orange-dk);border:1px solid var(--border-strong);}
+  .site-row { display: grid; grid-template-columns: 26px 1fr 38px; align-items: center; gap: 10px; padding: 10px 16px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.12s; border-left: 2px solid transparent; }
+  .site-row:hover { background: var(--wb-orange-pale); }
+  .site-row.selected { background: var(--wb-orange-pale); border-left-color: var(--wb-orange); padding-left: 14px; }
+  .rank-num { font-family: var(--font-display); font-size: 16px; color: var(--text-dim); line-height: 1; }
+  .site-row.selected .rank-num { color: var(--wb-orange); }
+  .row-name { font-size: 12px; font-weight: 500; color: var(--text-primary); line-height: 1.3; }
+  .row-sub { font-size: 10px; color: var(--text-dim); margin-top: 2px; }
+  .score-pill { font-size: 12px; font-weight: 600; text-align: center; padding: 3px 0; border-radius: 4px; width: 38px; }
+  .score-high { background: var(--green-bg);  color: var(--green); border: 1px solid var(--green-bd); }
+  .score-med  { background: var(--amber-bg);  color: var(--amber); border: 1px solid var(--amber-bd); }
+  .score-low  { background: var(--red-bg);    color: var(--red);   border: 1px solid var(--red-bd); }
+  .score-user { background: var(--wb-orange-pale); color: var(--wb-orange-dk); border: 1px solid var(--border-strong); }
 
   /* Military rows */
-  .mil-row{display:flex;align-items:flex-start;gap:10px;padding:10px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.12s;border-left:2px solid transparent;}
-  .mil-row:hover{background:var(--wb-orange-pale);}
-  .mil-row.selected{background:var(--wb-orange-pale);border-left-color:var(--wb-orange);padding-left:14px;}
-  .mil-branch-badge{font-size:9px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;padding:3px 7px;border-radius:3px;white-space:nowrap;flex-shrink:0;margin-top:1px;}
-  .b-navy {background:#ddeeff;color:#1A4A80;}
-  .b-af   {background:#ddfff5;color:#1A6A50;}
-  .b-army {background:#eeffd8;color:#2A5A00;}
-  .b-uscg {background:var(--wb-orange-pale);color:var(--wb-orange-dk);}
-  .b-joint{background:#f0eeff;color:#4A3A90;}
-  .mil-name{font-size:12px;font-weight:500;color:var(--text-primary);line-height:1.3;}
-  .mil-sub {font-size:10px;color:var(--text-dim);margin-top:2px;}
+  .mil-row { display: flex; align-items: flex-start; gap: 10px; padding: 10px 16px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.12s; border-left: 2px solid transparent; }
+  .mil-row:hover { background: var(--wb-orange-pale); }
+  .mil-row.selected { background: var(--wb-orange-pale); border-left-color: var(--wb-orange); padding-left: 14px; }
+  .mil-branch-badge { font-size: 9px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; padding: 3px 7px; border-radius: 3px; white-space: nowrap; flex-shrink: 0; margin-top: 1px; }
+  .b-navy  { background: #ddeeff; color: #1A4A80; }
+  .b-af    { background: #ddfff5; color: #1A6A50; }
+  .b-army  { background: #eeffd8; color: #2A5A00; }
+  .b-uscg  { background: var(--wb-orange-pale); color: var(--wb-orange-dk); }
+  .b-joint { background: #f0eeff; color: #4A3A90; }
+  .mil-name { font-size: 12px; font-weight: 500; color: var(--text-primary); line-height: 1.3; }
+  .mil-sub  { font-size: 10px; color: var(--text-dim); margin-top: 2px; }
 
   /* Detail panel */
-  .detail-panel{background:var(--bg-card2);border-top:1px solid var(--border);padding:14px 16px;max-height:280px;overflow-y:auto;display:none;flex-shrink:0;}
-  .detail-panel.open{display:block;}
-  .dp-name{font-family:var(--font-display);font-size:15px;color:var(--text-primary);margin-bottom:3px;line-height:1.2;}
-  .dp-addr{font-size:10px;color:var(--text-dim);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.05em;}
-  .dp-rationale{font-size:12px;color:var(--text-muted);line-height:1.7;margin-bottom:12px;}
-  .dp-metrics{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px;}
-  .dp-m{background:white;border:1px solid var(--border);border-radius:4px;padding:8px 10px;}
-  .dp-m .dm-val{font-family:var(--font-display);font-size:16px;color:var(--wb-orange-dk);}
-  .dp-m .dm-label{font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.06em;margin-top:1px;}
-  .pc-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
-  .pc-col{background:white;border-radius:4px;padding:8px 10px;}
-  .pc-col.pro{border-left:2px solid var(--green);}
-  .pc-col.con{border-left:2px solid var(--wb-orange);}
-  .pc-head{font-size:10px;text-transform:uppercase;letter-spacing:0.08em;font-weight:600;margin-bottom:6px;}
-  .pc-col.pro .pc-head{color:var(--green);}
-  .pc-col.con .pc-head{color:var(--wb-orange);}
-  .pc-col ul{list-style:none;}
-  .pc-col li{font-size:11px;color:var(--text-muted);padding-left:12px;position:relative;margin-bottom:4px;line-height:1.45;}
-  .pc-col.pro li::before{content:'+';position:absolute;left:0;color:var(--green);font-weight:600;}
-  .pc-col.con li::before{content:'−';position:absolute;left:0;color:var(--wb-orange);}
+  .detail-panel { background: var(--bg-card2); border-top: 1px solid var(--border); padding: 14px 16px; max-height: 280px; overflow-y: auto; display: none; flex-shrink: 0; }
+  .detail-panel.open { display: block; }
+  .dp-name { font-family: var(--font-display); font-size: 15px; color: var(--text-primary); margin-bottom: 3px; line-height: 1.2; }
+  .dp-addr { font-size: 10px; color: var(--text-dim); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .dp-rationale { font-size: 12px; color: var(--text-muted); line-height: 1.7; margin-bottom: 12px; }
+  .dp-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 12px; }
+  .dp-m { background: white; border: 1px solid var(--border); border-radius: 4px; padding: 8px 10px; }
+  .dp-m .dm-val   { font-family: var(--font-display); font-size: 16px; color: var(--wb-orange-dk); }
+  .dp-m .dm-label { font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 1px; }
+  .pc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .pc-col { background: white; border-radius: 4px; padding: 8px 10px; }
+  .pc-col.pro { border-left: 2px solid var(--green); }
+  .pc-col.con { border-left: 2px solid var(--wb-orange); }
+  .pc-head { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; margin-bottom: 6px; }
+  .pc-col.pro .pc-head { color: var(--green); }
+  .pc-col.con .pc-head { color: var(--wb-orange); }
+  .pc-col ul { list-style: none; }
+  .pc-col li { font-size: 11px; color: var(--text-muted); padding-left: 12px; position: relative; margin-bottom: 4px; line-height: 1.45; }
+  .pc-col.pro li::before { content: '+'; position: absolute; left: 0; color: var(--green); font-weight: 600; }
+  .pc-col.con li::before { content: '−'; position: absolute; left: 0; color: var(--wb-orange); }
+
+  /* Summary bar */
+  .summary-bar {
+    background: var(--bg-card);
+    border-top: 1px solid var(--border);
+    padding: 14px 24px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: baseline;
+    gap: 24px;
+  }
+  .summary-bar .s-eyebrow {
+    font-size: 9px; font-weight: 600; letter-spacing: 0.13em;
+    text-transform: uppercase; color: var(--wb-orange);
+    white-space: nowrap; flex-shrink: 0; padding-top: 2px;
+  }
+  .summary-bar .s-rule {
+    width: 2px; height: 32px; background: var(--wb-orange);
+    border-radius: 2px; flex-shrink: 0;
+  }
+  .summary-bar .s-title {
+    font-family: var(--font-display); font-size: 15px;
+    color: var(--text-primary); white-space: nowrap; flex-shrink: 0;
+  }
+  .summary-bar .s-body {
+    font-size: 11.5px; color: var(--text-muted); line-height: 1.65;
+    flex: 1;
+  }
+  .summary-bar .s-body strong {
+    color: var(--wb-orange-dk); font-weight: 600;
+  }
 
   /* Legend */
-  .legend-bar{display:flex;gap:14px;flex-wrap:wrap;align-items:center;padding:9px 24px;background:var(--wb-orange);border-top:1px solid var(--wb-orange-dk);flex-shrink:0;}
-  .leg{display:flex;align-items:center;gap:5px;font-size:10px;color:rgba(255,255,255,0.80);text-transform:uppercase;letter-spacing:0.07em;white-space:nowrap;}
-  .leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
-  .leg-line{width:18px;height:3px;border-radius:2px;flex-shrink:0;}
-  .leg-poly{width:18px;height:12px;border-radius:2px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.70);flex-shrink:0;}
-  .leg-spacer{margin-left:auto;}
-  .data-credit{font-size:10px;color:rgba(255,255,255,0.60);text-transform:uppercase;letter-spacing:0.07em;}
+  .legend-bar { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; padding: 9px 24px; background: var(--wb-orange); border-top: 1px solid var(--wb-orange-dk); flex-shrink: 0; }
+  .leg { display: flex; align-items: center; gap: 5px; font-size: 10px; color: rgba(255,255,255,0.80); text-transform: uppercase; letter-spacing: 0.07em; white-space: nowrap; }
+  .leg-dot  { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .leg-line { width: 18px; height: 3px; border-radius: 2px; flex-shrink: 0; }
+  .leg-poly { width: 18px; height: 12px; border-radius: 2px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.70); flex-shrink: 0; }
+  .leg-spacer { margin-left: auto; }
+  .data-credit { font-size: 10px; color: rgba(255,255,255,0.60); text-transform: uppercase; letter-spacing: 0.07em; }
 
-  ::-webkit-scrollbar{width:4px;}
-  ::-webkit-scrollbar-track{background:transparent;}
-  ::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:2px;}
+  /* Scrollbars */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 2px; }
 
-  .mil-tooltip{
-    background:white !important;
-    border:1px solid var(--wb-orange) !important;
-    color:var(--wb-orange-dk) !important;
-    font-family:'DM Sans',sans-serif !important;
-    font-size:11px !important;font-weight:500 !important;
-    padding:5px 10px !important;border-radius:4px !important;
-    box-shadow:0 2px 8px rgba(255,119,16,0.15) !important;
-  }
-  .mil-tooltip::before{display:none !important;}
-  .leaflet-control-zoom a{background:white !important;color:var(--wb-orange) !important;border-color:var(--border-md) !important;font-family:var(--font-body) !important;}
-  .leaflet-control-zoom a:hover{color:var(--wb-orange-dk) !important;border-color:var(--wb-orange) !important;}
-  .leaflet-control-attribution{background:rgba(255,255,255,0.85) !important;color:var(--text-dim) !important;font-size:9px !important;}
+  /* Leaflet overrides */
+  .mil-tooltip { background: white !important; border: 1px solid var(--wb-orange) !important; color: var(--wb-orange-dk) !important; font-family: 'DM Sans', sans-serif !important; font-size: 11px !important; font-weight: 500 !important; padding: 5px 10px !important; border-radius: 4px !important; box-shadow: 0 2px 8px rgba(255,119,16,0.15) !important; }
+  .mil-tooltip::before { display: none !important; }
+  .leaflet-control-zoom a { background: white !important; color: var(--wb-orange) !important; border-color: var(--border-md) !important; font-family: var(--font-body) !important; }
+  .leaflet-control-zoom a:hover { color: var(--wb-orange-dk) !important; border-color: var(--wb-orange) !important; }
+  .leaflet-control-attribution { background: rgba(255,255,255,0.85) !important; color: var(--text-dim) !important; font-size: 9px !important; }
 </style>
+</head>
+<body>
+<div class="app">
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-<!-- Header -->
-<div class="header">
-  <div class="header-top">
-    <div class="brand-lockup">
-      <div class="brand-icon">W</div>
-      <div class="brand-text">
-        <div class="eyebrow">Franchise Development Intelligence</div>
-        <div class="title">Hampton Roads Site Analysis</div>
+  <div class="header">
+    <div class="header-top">
+      <div class="brand-lockup">
+        <div class="brand-icon">W</div>
+        <div class="brand-text">
+          <div class="eyebrow">Franchise Development Intelligence</div>
+          <div class="title">Hampton Roads Site Analysis</div>
+        </div>
+      </div>
+      <div class="header-meta">
+        <div class="region">Hampton Roads MSA &middot; Virginia</div>
+        <div class="date">Research Date: March 2026</div>
       </div>
     </div>
-    <div class="header-meta">
-      <div class="region">Hampton Roads MSA &middot; Virginia</div>
-      <div class="date">Research Date: March 2026</div>
+    <div class="kpi-strip">
+      <div class="kpi"><div class="k-label">Candidate Sites</div><div class="k-val">10</div><div class="k-sub">Scored &amp; ranked</div></div>
+      <div class="kpi"><div class="k-label">MSA Population</div><div class="k-val">1.79M</div><div class="k-sub">Census ACS 2024</div></div>
+      <div class="kpi mil"><div class="k-label">Military Installations</div><div class="k-val">9</div><div class="k-sub">All branches present</div></div>
+      <div class="kpi mil"><div class="k-label">Active Duty Personnel</div><div class="k-val">83K+</div><div class="k-sub">Incl. ~12K from Texas</div></div>
+      <div class="kpi"><div class="k-label">Nearest Whataburger</div><div class="k-val">~400 mi</div><div class="k-sub">Charlotte, NC</div></div>
     </div>
   </div>
-  <div class="kpi-strip">
-    <div class="kpi accent"><div class="k-label">Candidate Sites</div><div class="k-val">10</div><div class="k-sub">Scored &amp; ranked</div></div>
-    <div class="kpi"><div class="k-label">MSA Population</div><div class="k-val">1.79M</div><div class="k-sub">Census ACS 2024</div></div>
-    <div class="kpi mil"><div class="k-label">Military Installations</div><div class="k-val">9</div><div class="k-sub">All branches present</div></div>
-    <div class="kpi mil"><div class="k-label">Active Duty Personnel</div><div class="k-val">83K+</div><div class="k-sub">Incl. ~12K from Texas</div></div>
-    <div class="kpi"><div class="k-label">Nearest Whataburger</div><div class="k-val">~400 mi</div><div class="k-sub">Charlotte, NC</div></div>
-  </div>
-</div>
 
-<!-- Body -->
-<div class="body-grid">
-  <div class="map-wrap">
-    <div class="filter-float">
-      <button class="filt active" onclick="filterSites('all',this)">All Sites</button>
-      <button class="filt" onclick="filterSites('high',this)">High</button>
-      <button class="filt" onclick="filterSites('medium',this)">Medium</button>
-      <button class="filt" onclick="filterSites('low',this)">Lower</button>
-      <button class="filt" onclick="filterSites('user',this)">Your Site</button>
-      <button class="filt mil-toggle active" id="mil-btn" onclick="toggleMil(this)">&#9670; Military</button>
+  <div class="body">
+    <div class="map-wrap">
+      <div class="filter-float">
+        <button class="filt active" onclick="filterSites('all',this)">All Sites</button>
+        <button class="filt" onclick="filterSites('high',this)">High</button>
+        <button class="filt" onclick="filterSites('medium',this)">Medium</button>
+        <button class="filt" onclick="filterSites('low',this)">Lower</button>
+        <button class="filt" onclick="filterSites('user',this)">Your Site</button>
+        <button class="filt mil-toggle active" id="mil-btn" onclick="toggleMil(this)">&#9670; Military</button>
+      </div>
+      <div id="map"></div>
     </div>
-    <div id="map"></div>
-  </div>
-  <div class="right-panel">
-    <div class="tabs">
-      <button class="tab active" onclick="switchTab('sites',this)">Candidate Sites</button>
-      <button class="tab" onclick="switchTab('military',this)">Military</button>
+    <div class="right-panel">
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab('sites',this)">Candidate Sites</button>
+        <button class="tab" onclick="switchTab('military',this)">Military</button>
+      </div>
+      <div class="tab-content active" id="tab-sites"><div id="site-table"></div></div>
+      <div class="tab-content" id="tab-military"><div id="mil-table"></div></div>
+      <div class="detail-panel" id="detail-panel"></div>
     </div>
-    <div class="tab-content active" id="tab-sites"><div id="site-table"></div></div>
-    <div class="tab-content" id="tab-military"><div id="mil-table"></div></div>
-    <div class="detail-panel" id="detail-panel"></div>
   </div>
-</div>
 
-<!-- Legend -->
-<div class="legend-bar">
-  <div class="leg"><div class="leg-dot" style="background:#3A8A00"></div>High priority</div>
-  <div class="leg"><div class="leg-dot" style="background:#F0A000"></div>Medium priority</div>
-  <div class="leg"><div class="leg-dot" style="background:#C03000"></div>Lower priority</div>
-  <div class="leg"><div class="leg-dot" style="background:white;border:2px solid white"></div>Your site</div>
-  <div class="leg"><div class="leg-poly"></div>Military installation</div>
-  <div class="leg"><div class="leg-line" style="background:rgba(255,255,255,0.7)"></div>Interstate</div>
-  <div class="leg"><div class="leg-line" style="background:rgba(255,255,255,0.5)"></div>Commercial corridor</div>
-  <div class="leg-spacer"></div>
-  <div class="data-credit">Census ACS 2024 &middot; VDOT &middot; DoD &middot; Hampton Roads Alliance</div>
-</div>
+  <div class="summary-bar">
+    <div class="s-rule"></div>
+    <div class="s-title">The Case for Hampton Roads</div>
+    <div class="s-body">
+      Hampton Roads is home to <strong>1.79 million people</strong>, <strong>nine military installations</strong>, and <strong>83,000+ active duty service members</strong> — with no Whataburger within 400 miles. The nearest location is in Charlotte, NC.
+      Texas contributes more enlisted personnel to the US military than any other state, and Hampton Roads is the largest Naval concentration on the East Coast.
+      That means a disproportionate share of those 83,000 service members grew up eating Whataburger.
+      <strong>This project asks: where should the first location go?</strong>
+    </div>
+  </div>
 
+  <div class="legend-bar">
+    <div class="leg"><div class="leg-dot" style="background:#3A8A00"></div>High priority</div>
+    <div class="leg"><div class="leg-dot" style="background:#E08000"></div>Medium priority</div>
+    <div class="leg"><div class="leg-dot" style="background:#C03000"></div>Lower priority</div>
+    <div class="leg"><div class="leg-dot" style="background:white"></div>Your site</div>
+    <div class="leg"><div class="leg-poly"></div>Military installation</div>
+    <div class="leg"><div class="leg-line" style="background:rgba(255,255,255,0.7)"></div>Interstate</div>
+    <div class="leg"><div class="leg-line" style="background:rgba(255,255,255,0.5)"></div>Commercial corridor</div>
+    <div class="leg-spacer"></div>
+    <div class="data-credit">Census ACS 2024 &middot; VDOT &middot; DoD &middot; Hampton Roads Alliance</div>
+  </div>
+
+</div>
 <script>
 const SITES=[
   {id:1,lat:37.0360,lng:-76.3956,priority:'high',rank:1,name:'Mercury Blvd / I-64',sub:'Hampton · Exit 263',totalScore:94,popDensity:'2,772/mi²',medianIncome:'$67,758',highwayScore:'9.8',corridorScore:'9.5',rationale:'Highest-traffic interchange on the Peninsula. Mercury Blvd is Hampton\'s primary commercial spine with ~140,000 vehicles/day on I-64. Dense retail, hotel, and Power Plant shopping ecosystem. Excellent access from JBLE Gate 2.',pros:['Peak Peninsula interstate volume','Dense existing QSR/retail ecosystem','Close to JBLE main gate traffic'],cons:['Highest real estate cost','Max existing QSR competition']},
@@ -231,8 +271,8 @@ const SITES=[
   {id:6,lat:36.7312,lng:-76.5868,priority:'medium',rank:6,name:'Portsmouth Blvd / I-664',sub:'Chesapeake · Greenbrier',totalScore:79,popDensity:'560/mi²',medianIncome:'$82,400',highwayScore:'8.2',corridorScore:'7.4',rationale:'Fastest-growing city in Hampton Roads with highest median income in the analysis ($82,400). Low QSR saturation in premium segment. Serves Navy and USCG families who prefer quieter suburban Chesapeake.',pros:['Highest median income ($82,400)','Fastest-growing city in HR','Low premium QSR saturation'],cons:['Lower density (suburban)','I-664 lower volume than I-64']},
   {id:7,lat:36.8395,lng:-76.3008,priority:'medium',rank:7,name:'Tidewater Dr / I-264',sub:'Portsmouth · Norfolk border',totalScore:77,popDensity:'3,314/mi²',medianIncome:'$48,500',highwayScore:'7.9',corridorScore:'8.1',rationale:'Major commuter arterial. Affordable real estate. BAE Systems and Norfolk Naval Shipyard are the primary employers — heavy blue-collar lunch demand from shipyard workers, many of whom are veterans or active duty.',pros:['Affordable real estate','Shipyard/NAVSHIPYD lunch demand','Dense residential'],cons:['Lowest median HHI in analysis','Higher vacancy risk']},
   {id:8,lat:37.115839,lng:-76.465151,priority:'user',rank:8,name:'Victory Blvd (Your Site)',sub:'Hampton · Ex-Pizza Hut building',totalScore:74,popDensity:'2,200/mi²',medianIncome:'$69,500',highwayScore:'6.8',corridorScore:'7.6',rationale:'Existing drive-through building cuts buildout cost vs greenfield. VDOT widening Victory Blvd. Located 2.5 miles from JBLE Langley AFB Gate 20 — strong Air Force family and civilian workforce corridor. Peninsula Town Center nearby.',pros:['Existing drive-through = low buildout','2.5 mi from Langley AFB Gate','VDOT widening = rising corridor value','Family/rec traffic generators'],cons:['Not at interstate interchange','Lower current ADT vs top sites']},
-  {id:9,lat:37.1513,lng:-76.5195,priority:'low',rank:9,name:'Magruder Blvd / US-60',sub:'Hampton Northwest · Airport',totalScore:68,popDensity:'1,200/mi²',medianIncome:'$69,000',highwayScore:'7.2',corridorScore:'6.5',rationale:'Growing suburban corridor near Newport News/Williamsburg Airport and industrial parks. Lower density today but positioned for future growth. Serves overflow residential growth near Fort Eustis northern boundary.',pros:['Airport/tourist corridor potential','Growing industrial zone'],cons:['Low current residential density','Far from major interstate ramps']},
-  {id:10,lat:36.9274,lng:-76.0141,priority:'low',rank:10,name:'Oceana Blvd / US-58',sub:'Virginia Beach East',totalScore:65,popDensity:'1,650/mi²',medianIncome:'$74,000',highwayScore:'6.8',corridorScore:'6.9',rationale:'Strong demographics but existing QSR saturation limits near-term upside. NAS Oceana is adjacent — potential demand from aviation squadrons but limited off-base commercial access from main gate.',pros:['Strong demographics','NAS Oceana military catchment'],cons:['High existing QSR saturation','Limited off-base commercial access']},
+  {id:9,lat:37.1513,lng:-76.5195,priority:'low',rank:9,name:'Magruder Blvd / US-60',sub:'Hampton Northwest · Airport',totalScore:68,popDensity:'1,200/mi²',medianIncome:'$69,000',highwayScore:'7.2',corridorScore:'6.5',rationale:'Growing suburban corridor near Newport News/Williamsburg Airport and industrial parks. Lower density today but positioned for future growth.',pros:['Airport/tourist corridor potential','Growing industrial zone'],cons:['Low current residential density','Far from major interstate ramps']},
+  {id:10,lat:36.9274,lng:-76.0141,priority:'low',rank:10,name:'Oceana Blvd / US-58',sub:'Virginia Beach East',totalScore:65,popDensity:'1,650/mi²',medianIncome:'$74,000',highwayScore:'6.8',corridorScore:'6.9',rationale:'Strong demographics but existing QSR saturation limits near-term upside. NAS Oceana is adjacent — potential demand from aviation squadrons but limited off-base commercial access.',pros:['Strong demographics','NAS Oceana military catchment'],cons:['High existing QSR saturation','Limited off-base commercial access']},
 ];
 
 const INSTALLATIONS=[
@@ -243,7 +283,7 @@ const INSTALLATIONS=[
   {id:'jeb-lc',name:'JEB Little Creek–Fort Story',branch:'Joint',branchClass:'b-joint',personnel:'~17,000 active duty',acreage:'5,700 acres',note:'Primary East Coast amphibious base. Home of Naval Special Warfare and SEAL Teams 2, 4, 10.',center:[36.918,-76.057],polygon:[[36.938,-76.075],[36.938,-76.042],[36.928,-76.032],[36.915,-76.030],[36.902,-76.038],[36.898,-76.055],[36.902,-76.072],[36.915,-76.080],[36.930,-76.080],[36.938,-76.075]]},
   {id:'navshipyd',name:'Norfolk Naval Shipyard',branch:'Navy',branchClass:'b-navy',personnel:'~4,000 mil + 9,000 civ',acreage:'800 acres',note:'Oldest and largest industrial Navy facility in the US. Specializes in nuclear carrier overhaul. Located in Portsmouth.',center:[36.822,-76.298],polygon:[[36.832,-76.308],[36.832,-76.290],[36.825,-76.283],[36.816,-76.285],[36.812,-76.295],[36.815,-76.308],[36.824,-76.313],[36.832,-76.308]]},
   {id:'nsa-hr',name:'NSA Hampton Roads',branch:'Navy',branchClass:'b-navy',personnel:'~5,000 military & civ',acreage:'~350 acres',note:'HQ of Marine Forces Command (MARFORCOM) and NATO\'s Allied Command Transformation — the only NATO command on US soil.',center:[36.910,-76.150],polygon:[[36.922,-76.162],[36.922,-76.140],[36.914,-76.133],[36.904,-76.135],[36.899,-76.145],[36.902,-76.158],[36.912,-76.165],[36.922,-76.162]]},
-  {id:'nws-yorktown',name:'Naval Weapons Station Yorktown',branch:'Navy',branchClass:'b-navy',personnel:'~1,500 military & civ',acreage:'9,714 acres',note:'Stores, maintains, and loads ordnance for the US Atlantic Fleet.',center:[37.245,-76.615],polygon:[[37.285,-76.640],[37.285,-76.590],[37.265,-76.575],[37.245,-76.575],[37.225,-76.585],[37.215,-76.605],[37.220,-76.635],[37.240,-76.650],[37.265,-76.652],[37.285,-76.640]]},
+  {id:'nws-yorktown',name:'Naval Weapons Station Yorktown',branch:'Navy',branchClass:'b-navy',personnel:'~1,500 military & civ',acreage:'9,714 acres',note:'Stores, maintains, and loads ordnance for the US Atlantic Fleet. Located north on the York River.',center:[37.245,-76.615],polygon:[[37.285,-76.640],[37.285,-76.590],[37.265,-76.575],[37.245,-76.575],[37.225,-76.585],[37.215,-76.605],[37.220,-76.635],[37.240,-76.650],[37.265,-76.652],[37.285,-76.640]]},
   {id:'uscg-sector',name:'USCG Sector Hampton Roads',branch:'USCG',branchClass:'b-uscg',personnel:'~500 active duty',acreage:'~40 acres',note:'Primary Coast Guard maritime law enforcement, SAR, and port security command for the Chesapeake Bay and Hampton Roads waterways.',center:[36.838,-76.305],polygon:[[36.843,-76.312],[36.843,-76.300],[36.837,-76.295],[36.832,-76.298],[36.832,-76.308],[36.837,-76.315],[36.843,-76.312]]},
 ];
 
@@ -353,24 +393,17 @@ function toggleMil(btn){
   milLayers.forEach(({layer})=>{milVisible?layer.addTo(map):layer.remove();});
 }
 
-document.addEventListener('DOMContentLoaded',()=>{
+window.addEventListener('load',()=>{
   buildSiteTable();
   buildMilTable();
-
   map=L.map('map',{center:[36.95,-76.25],zoom:10,zoomControl:false});
   L.control.zoom({position:'bottomright'}).addTo(map);
-
-  // Light CartoDB Positron basemap
   L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{
-    attribution:'© OpenStreetMap © CARTO',subdomains:'abcd',maxZoom:19
+    attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>',
+    subdomains:'abcd',maxZoom:19
   }).addTo(map);
-
-  // Military polygons
   INSTALLATIONS.forEach(inst=>{
-    const poly=L.polygon(inst.polygon,{
-      fillColor:'#FF7710',fillOpacity:0.08,
-      color:'#FF7710',weight:1.5,opacity:0.60,dashArray:'5 4'
-    }).addTo(map);
+    const poly=L.polygon(inst.polygon,{fillColor:'#FF7710',fillOpacity:0.08,color:'#FF7710',weight:1.5,opacity:0.60,dashArray:'5 4'}).addTo(map);
     poly.bindTooltip(inst.name,{className:'mil-tooltip',permanent:false,sticky:true,direction:'top'});
     poly.on('click',()=>{
       document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
@@ -381,30 +414,16 @@ document.addEventListener('DOMContentLoaded',()=>{
     });
     milLayers.push({layer:poly,inst});
   });
-
-  // Corridors — orange palette
   CORRIDORS.forEach(c=>{
-    const style=c.type==='interstate'
-      ?{color:'#D95F00',weight:3.5,opacity:0.65}
-      :{color:'#FF9A45',weight:2.5,opacity:0.55,dashArray:'7 5'};
+    const style=c.type==='interstate'?{color:'#D95F00',weight:3.5,opacity:0.65}:{color:'#FF9A45',weight:2.5,opacity:0.55,dashArray:'7 5'};
     L.polyline(c.coords,style).addTo(map);
   });
-
-  // Site markers
   SITES.forEach(s=>{
     const isUser=s.priority==='user';
     const color=priorityColor[s.priority];
     const size=isUser?34:28;
     const icon=L.divIcon({
-      html:`<div style="
-        width:${size}px;height:${size}px;border-radius:50%;
-        background:${isUser?'#FF7710':color};
-        border:2.5px solid white;
-        display:flex;align-items:center;justify-content:center;
-        font-family:'DM Sans',sans-serif;font-size:${isUser?9:10}px;font-weight:600;
-        color:white;cursor:pointer;
-        box-shadow:0 2px 8px rgba(0,0,0,0.20),0 0 0 1px ${color}40;
-      ">${isUser?'YOU':s.totalScore}</div>`,
+      html:`<div style="width:${size}px;height:${size}px;border-radius:50%;background:${color};border:2.5px solid white;display:flex;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif;font-size:${isUser?9:10}px;font-weight:600;color:white;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.18),0 0 0 1px ${color}40;">${isUser?'YOU':s.totalScore}</div>`,
       className:'',iconSize:[size,size],iconAnchor:[size/2,size/2]
     });
     const m=L.marker([s.lat,s.lng],{icon}).addTo(map);
@@ -417,7 +436,8 @@ document.addEventListener('DOMContentLoaded',()=>{
     });
     siteMarkers.push({marker:m,site:s});
   });
-
   selectSite(1);
 });
 </script>
+</body>
+</html>
