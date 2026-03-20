@@ -114,8 +114,15 @@
   .mil-sub  { font-size: 10px; color: var(--text-dim); margin-top: 2px; }
 
   /* Detail panel */
-  .detail-panel { background: var(--bg-card2); border-top: 1px solid var(--border); padding: 14px 16px; max-height: 280px; overflow-y: auto; display: none; flex-shrink: 0; }
+  .detail-panel { background: var(--bg-card2); border-top: 1px solid var(--border); display: none; flex-shrink: 0; }
   .detail-panel.open { display: block; }
+  .dp-toggle { display: flex; align-items: center; justify-content: space-between; padding: 8px 16px; cursor: pointer; border-bottom: 1px solid var(--border); user-select: none; }
+  .dp-toggle:hover { background: var(--wb-orange-pale); }
+  .dp-toggle .dp-toggle-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--wb-orange); }
+  .dp-toggle .dp-chevron { font-size: 11px; color: var(--wb-orange); transition: transform 0.2s; display: inline-block; }
+  .dp-toggle .dp-chevron.up { transform: rotate(180deg); }
+  .dp-body { padding: 14px 16px; max-height: 260px; overflow-y: auto; }
+  .dp-body.collapsed { display: none; }
   .dp-name { font-family: var(--font-display); font-size: 15px; color: var(--text-primary); margin-bottom: 3px; line-height: 1.2; }
   .dp-addr { font-size: 10px; color: var(--text-dim); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.05em; }
   .dp-rationale { font-size: 12px; color: var(--text-muted); line-height: 1.7; margin-bottom: 12px; }
@@ -334,18 +341,23 @@ function selectSite(id){
   const s=SITES.find(x=>x.id===id);
   const dp=document.getElementById('detail-panel');
   dp.innerHTML=`
-    <div class="dp-name">${s.name}</div>
-    <div class="dp-addr">${s.sub}</div>
-    <div class="dp-rationale">${s.rationale}</div>
-    <div class="dp-metrics">
-      <div class="dp-m"><div class="dm-val">${s.totalScore}</div><div class="dm-label">Composite Score</div></div>
-      <div class="dp-m"><div class="dm-val">${s.popDensity}</div><div class="dm-label">Pop. Density</div></div>
-      <div class="dp-m"><div class="dm-val">${s.medianIncome}</div><div class="dm-label">Median HHI</div></div>
-      <div class="dp-m"><div class="dm-val">${s.highwayScore}/10</div><div class="dm-label">Highway Access</div></div>
+    <div class="dp-toggle" onclick="toggleDpBody(this)">
+      <span class="dp-toggle-label">${s.name}</span>
+      <span class="dp-chevron up">&#9650;</span>
     </div>
-    <div class="pc-grid">
-      <div class="pc-col pro"><div class="pc-head">Strengths</div><ul>${s.pros.map(p=>`<li>${p}</li>`).join('')}</ul></div>
-      <div class="pc-col con"><div class="pc-head">Considerations</div><ul>${s.cons.map(c=>`<li>${c}</li>`).join('')}</ul></div>
+    <div class="dp-body">
+      <div class="dp-addr">${s.sub}</div>
+      <div class="dp-rationale">${s.rationale}</div>
+      <div class="dp-metrics">
+        <div class="dp-m"><div class="dm-val">${s.totalScore}</div><div class="dm-label">Composite Score</div></div>
+        <div class="dp-m"><div class="dm-val">${s.popDensity}</div><div class="dm-label">Pop. Density</div></div>
+        <div class="dp-m"><div class="dm-val">${s.medianIncome}</div><div class="dm-label">Median HHI</div></div>
+        <div class="dp-m"><div class="dm-val">${s.highwayScore}/10</div><div class="dm-label">Highway Access</div></div>
+      </div>
+      <div class="pc-grid">
+        <div class="pc-col pro"><div class="pc-head">Strengths</div><ul>${s.pros.map(p=>`<li>${p}</li>`).join('')}</ul></div>
+        <div class="pc-col con"><div class="pc-head">Considerations</div><ul>${s.cons.map(c=>`<li>${c}</li>`).join('')}</ul></div>
+      </div>
     </div>`;
   dp.classList.add('open');
   map.setView([s.lat,s.lng],13,{animate:true});
@@ -358,14 +370,19 @@ function selectMil(id){
   const m=INSTALLATIONS.find(x=>x.id===id);
   const dp=document.getElementById('detail-panel');
   dp.innerHTML=`
-    <div class="dp-name">${m.name}</div>
-    <div class="dp-addr" style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-      <span class="mil-branch-badge ${m.branchClass}">${m.branch}</span><span>${m.acreage}</span>
+    <div class="dp-toggle" onclick="toggleDpBody(this)">
+      <span class="dp-toggle-label">${m.name}</span>
+      <span class="dp-chevron up">&#9650;</span>
     </div>
-    <div class="dp-rationale">${m.note}</div>
-    <div class="dp-metrics">
-      <div class="dp-m"><div class="dm-val">${m.personnel.split(' ')[0]}</div><div class="dm-label">Personnel</div></div>
-      <div class="dp-m"><div class="dm-val">${m.acreage.split(' ')[0]}</div><div class="dm-label">Acreage</div></div>
+    <div class="dp-body">
+      <div class="dp-addr" style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <span class="mil-branch-badge ${m.branchClass}">${m.branch}</span><span>${m.acreage}</span>
+      </div>
+      <div class="dp-rationale">${m.note}</div>
+      <div class="dp-metrics">
+        <div class="dp-m"><div class="dm-val">${m.personnel.split(' ')[0]}</div><div class="dm-label">Personnel</div></div>
+        <div class="dp-m"><div class="dm-val">${m.acreage.split(' ')[0]}</div><div class="dm-label">Acreage</div></div>
+      </div>
     </div>`;
   dp.classList.add('open');
   map.setView(m.center,13,{animate:true});
@@ -391,6 +408,13 @@ function toggleMil(btn){
   milVisible=!milVisible;
   btn.classList.toggle('active',milVisible);
   milLayers.forEach(({layer})=>{milVisible?layer.addTo(map):layer.remove();});
+}
+
+function toggleDpBody(toggleEl) {
+  const body = toggleEl.nextElementSibling;
+  const chevron = toggleEl.querySelector('.dp-chevron');
+  body.classList.toggle('collapsed');
+  chevron.classList.toggle('up');
 }
 
 window.addEventListener('load',()=>{
